@@ -47,4 +47,4 @@ jobs:
               kill -9 $pid
             fi
             # Start the new application in the background
-            nohup java -jar aws-microservice-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            nohup java -jar aws-microservice-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev --spring.servlet.multipart.max-file-size=10MB --spring.servlet.multipart.max-request-size=10MB > app.log 2>&1 &

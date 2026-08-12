@@ -32,7 +32,7 @@ public class ProductController {
             String fileName = s3Service.uploadFile(file);
             
             // 2. Ask AI to analyze the image
-            String aiTags = rekognitionService.detectLabels(fileName);
+            String aiTags = rekognitionService.detectLabels(file.getBytes());
             
             // 3. Save product info and image URL to MySQL database
             Product product = new Product();

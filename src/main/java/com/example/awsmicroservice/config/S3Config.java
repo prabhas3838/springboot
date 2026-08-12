@@ -26,7 +26,7 @@ public class S3Config {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
         return S3Client.builder()
-                .region(Region.US_EAST_1)
+                .region(Region.EU_NORTH_1)
                 .crossRegionAccessEnabled(true)
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
@@ -35,7 +35,7 @@ public class S3Config {
     @Profile("dev")
     public S3Client s3Clientdev() {
         return S3Client.builder()
-                .region(Region.US_EAST_1)
+                .region(Region.EU_NORTH_1)
                 .crossRegionAccessEnabled(true)
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();

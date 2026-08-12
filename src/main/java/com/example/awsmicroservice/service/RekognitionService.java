@@ -24,14 +24,11 @@ public class RekognitionService {
         this.rekognitionClient = rekognitionClient;
     }
 
-    public String detectLabels(String fileName) {
-        S3Object s3Object = S3Object.builder()
-                .bucket(bucketName)
-                .name(fileName)
-                .build();
+    public String detectLabels(byte[] imageBytes) {
+        software.amazon.awssdk.core.SdkBytes sdkBytes = software.amazon.awssdk.core.SdkBytes.fromByteArray(imageBytes);
 
         Image image = Image.builder()
-                .s3Object(s3Object)
+                .bytes(sdkBytes)
                 .build();
 
         DetectLabelsRequest request = DetectLabelsRequest.builder()
