@@ -42,7 +42,7 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USERNAME }}/app
             # Find and kill the running Java process
-            pkill -f 'java -jar aws-microservice' || true
+            pkill -f '[j]ava -jar aws-microservice' || true
             sleep 2
             # Start the new application in the background
             nohup java -jar aws-microservice-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev --spring.servlet.multipart.max-file-size=10MB --spring.servlet.multipart.max-request-size=10MB > app.log 2>&1 &
