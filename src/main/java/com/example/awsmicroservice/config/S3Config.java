@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.rekognition.RekognitionClient;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
@@ -30,12 +31,31 @@ public class S3Config {
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
-    @Bean("S3Client")
+    @Bean
     @Profile("dev")
     public S3Client s3Clientdev() {
         return S3Client.builder()
                 .region(Region.US_EAST_1)
                 .crossRegionAccessEnabled(true)
+                .credentialsProvider(DefaultCredentialsProvider.create())
+                .build();
+    }
+
+    @Bean
+    @Profile("local")
+    public RekognitionClient rekognitionClient() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        return RekognitionClient.builder()
+                .region(Region.US_EAST_1)
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .build();
+    }
+
+    @Bean
+    @Profile("dev")
+    public RekognitionClient rekognitionClientDev() {
+        return RekognitionClient.builder()
+                .region(Region.US_EAST_1)
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }

@@ -7,16 +7,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.awsmicroservice.service.RekognitionService;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
 
     private final S3Service s3Service;
     private final ProductRepository productRepository;
+    private final RekognitionService rekognitionService;
 
-    public ProductController(S3Service s3Service, ProductRepository productRepository) {
+    public ProductController(S3Service s3Service, ProductRepository productRepository, RekognitionService rekognitionService) {
         this.s3Service = s3Service;
         this.productRepository = productRepository;
+        this.rekognitionService = rekognitionService;
     }
 
     @PostMapping("/upload-image")
@@ -27,15 +31,19 @@ public class ProductController {
             // 1. Upload image to S3
             String fileName = s3Service.uploadFile(file);
             
-            // 2. Save product info and image URL to MySQL database
+            // 2. Ask AI to analyze the image
+            String aiTags = rekognitionService.detectLabels(fileName);
+            
+            // 3. Save product info and image URL to MySQL database
             Product product = new Product();
             product.setName(name);
             product.setDescription(description);
-            product.setImageUrl(fileName); // We save the S3 file name in the database!
+            product.setImageUrl(fileName); 
+            product.setAiTags(aiTags); // Save the AI tags!
             
-            productRepository.save(product); // This runs the hidden SQL INSERT query!
+            productRepository.save(product); 
 
-            return ResponseEntity.ok("Product saved successfully to database and S3! File Name: " + fileName);
+            return ResponseEntity.ok("Product saved successfully! AI detected: [" + aiTags + "]");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to save product: " + e.getMessage());
         }
