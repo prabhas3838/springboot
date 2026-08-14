@@ -9,6 +9,11 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import com.example.awsmicroservice.entity.User;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
@@ -58,5 +63,38 @@ public class S3Config {
                 .region(Region.US_EAST_1)
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
+    }
+    @Bean
+    @Profile("local")
+    public DynamoDbEnhancedClient dynamoDbEnhancedClientLocal() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        
+        DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
+                .region(Region.EU_NORTH_1) // Change this if your table is in a different region!
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .build();
+                
+        return DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(dynamoDbClient)
+                .build();
+    }
+
+    @Bean
+    @Profile("dev")
+    public DynamoDbEnhancedClient dynamoDbEnhancedClientDev() {
+        DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
+                .region(Region.EU_NORTH_1)
+                .credentialsProvider(DefaultCredentialsProvider.create())
+                .build();
+                
+        return DynamoDbEnhancedClient.builder()
+                .dynamoDbClient(dynamoDbClient)
+                .build();
+    }
+
+    @Bean
+    public DynamoDbTable<User> userTable(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+        // Create the user table bean so it can be injected perfectly cleanly into the Repository!
+        return dynamoDbEnhancedClient.table("user", TableSchema.fromBean(User.class));
     }
 }
